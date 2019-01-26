@@ -1,0 +1,23 @@
+Stuck at the week 5 project? Some tips:
+Carson Elmore JrAssignment: Data Analysis Project · 2 years ago · Edited
+Week 5 project - where do I start?
+
+*** If you can't get the template to load the data, I have a zip of the files verified to work hosted on the course Slack channel. To join, please see the dedicated thread. ***
+
+The data analysis project is indeed a bit difficult, especially as we have to leave it incomplete in a research sense. It’s better to think of the questions as determining whether there is a case for further study of a question or not.
+
+These suggestions assume you are already familiar with the grading criteria on the bottom of the project instructions page.
+
+After your introduction (which can be written later) data section should be fairly straightforward. Something along the lines of “I investigated these questions using the BRFSS dataset. This was collected from POPULATION using METHOD. Results ARE / ARE NOT generalizable to ANOTHER?POPULATION. STATEMENT ABOUT CAUSALITY" is sufficient. (I’m pretty confident you know the answers to fill in those blanks.) You will also need to address potential biases. They don't have to be actually present in the data, but given BRFSS codebook's information you should be able to find 2 or 3 things to keep in mind as you use their data. Do not just copy the BRFSS codebook without rewriting it in your own words and explaining what it means.
+
+After that comes the research questions. (The way I write at least they would be stated in the introductory paragraph, but they aren’t fully addressed until later.)
+
+A good way to come up with the research questions is to pick 3 things that sound like reasonably interesting response variables. Happiness and economic level are common choices. Then you need to pick an explanatory variable for each. Feel free to pick something that doesn’t seem to relate at all. Is gun ownership related to happiness? Finally, for at least 2 of the questions you’ll need a 3rd variable, and a useful strategy is to pick something potentially confounding to subset by. Gender is an easy one.
+
+After explaining each question, you need to conduct an EDA on the question. Write the code in 2 chunks: the first selecting and cleaning your data, and giving numerical summary (followed by a quick narration of what you’re doing and the basic result), then output your visualizations. This keeps the code and output from swamping the readable text.
+
+Conclusions are often one of the hardest things to write, especially since we haven’t gotten to prove anything about the data or not. So ending with a summary of what we’ve seen and a vague statement about needing more research to prove anything definitely (here’s a good place to repeat who we can generalize to and whether we can place a causal connection) is sufficient.
+
+Hope this helps, and have fun exploring the data!
+
+
