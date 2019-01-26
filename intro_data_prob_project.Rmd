@@ -1,0 +1,88 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `brfss2013`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+
+
+* * *
+
+## Part 1: Data
+
+Genetics,  
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+
+Is the level of education of working people lead to the higher income?
+
+**Research quesion 2:**
+
+Is the level of education of working native americans/alaskian people's lead to the higher income?
+
+**Research quesion 3:**
+
+Is childfree educated womens become to drink more alcohol with ages?
+
+**Research quesion 4:**
+
+Is self employed mans who sleeps less than it is necessary, drink more alcohol?
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" 
+button (green button with orange arrow) above. Make sure that your code is visible
+in the project you submit. Delete this note when before you submit your work.
+
+**Research quesion 1:**
+Is the level of education of working people lead to the higher income?
+
+At first lets take a look at the BRFSS's Codebook and try to achieve what variables can help us with this investigation.  
+
+```{r}
+
+```
+
+
+
+**Research quesion 2:**
+
+```{r}
+
+```
+
+
+
+**Research quesion 3:**
+
+```{r}
+
+```
+
