@@ -64,7 +64,103 @@ in the project you submit. Delete this note when before you submit your work.
 **Research quesion 1:**
 Is the level of education of working people lead to the higher income?
 
-At first lets take a look at the BRFSS's Codebook and try to achieve what variables can help us with this investigation.  
+At first lets take a look at the BRFSS's Codebook and try to achieve what variables can help us with this investigation. Изучив Кодебук можно выделить следующие переменные:  
+
+### Переменные, касающиеся уровня образования
+
+**educa**: Education Level
+
+*What is the highest grade or year of school you completed?*
+
+| Value | Value Label                                | Frequency | Percent | Cumulative Frequency |
+| :---: | :----------------------------------------- | --------: | ------: | -------------------: |
+|   1   | Never attended school or only kindergarten |       675 |    0.14 |                 0.14 |
+|   2   | Grades 1 through 8 (Elementary)            |    13,375 |    2.72 |                 2.86 |
+|   3   | Grades 9 through 11 (Some high school)     |    28,082 |    5.71 |                 8.57 |
+|   4   | Grade 12 or GED (High school graduate)     |   142,953 |   29.07 |                37.64 |
+|   5   | College 1 year to 3 years (Some college    |   134,242 |   27.30 |                64.93 |
+|   6   | College 4 years or more (College graduate) |   170,173 |   34.60 |                99.54 |
+|  NA   | Refused                                    |     1,747 |    0.36 |                99.89 |
+|  NA   | [Missing]                                  |       526 |    0.11 |               100.00 |
+| Total | 491,773                                    |    100.00 |         |                      |
+
+Variable type: categorical Missing values: 9, BLANK 
+
+**\_educag**: Computed Level Of Education Completed Categories
+
+*Level of education completed*
+
+| Value | Value Label                                                    | Frequency | Percent | Cumulative Frequency |
+| :---: | :------------------------------------------------------------- | --------: | ------: | -------------------: |
+|   1   | Did not graduate High School [*educa* coded 1, 2, or 3]        |    42,132 |    8.57 |                 8.57 |
+|   2   | Graduated High School [*educa* coded 4]                        |   142,953 |   29.07 |                37.64 |
+|   3   | Attended College or Technical School [*educa* coded 5]         |   134,242 |   27.30 |                64.93 |
+|   4   | Graduated from College or Technical School [*educa* coded 6]   |   170,173 |   34.60 |                99.54 |
+|  NA   | Don’t know/Not sure/Missing [*educa* coded 9 or missing]       |     2,273 |    0.46 |               100.00 |
+| Total | 491,773                                                        |    100.00 |         |                      | 
+
+Variable type: categorical Missing values: 9
+
+### Переменные, касающиеся трудовой деятельности 
+
+**employ1**: Employment Status
+
+*Are you currently…?*
+
+| Value | Value Label                      | Frequency | Percent | Cumulative Frequency |
+| :---: | :------------------------------- | --------: | ------: | -------------------: |
+|   1   | Employed for wages               |   202,169 |   41.11 |                41.11 |
+|   2   | Self-employed                    |    39,853 |    8.10 |                49.21 |
+|   3   | Out of work for 1 year or more   |    14,081 |    2.86 |                52.08 |
+|   4   | Out of work for less that 1 year |    12,241 |    2.49 |                54.57 |
+|   5   | A homemaker                      |    31,654 |    6.44 |                61.00 |
+|   6   | A student                        |    12,664 |    2.58 |                63.58 |
+|   7   | Retired                          |   138,311 |   28.12 |                91.70 |
+|   8   | Unable to work                   |    37,419 |    7.61 |                99.31 |
+|  NA   | Refused                          |     2,713 |    0.55 |                99.86 |
+|  NA   | [Missing]                        |       668 |    0.14 |               100.00 |
+| Total | 491,773                          |    100.00 |         |                      |
+
+Variable type: categorical Missing values: 9, BLANK
+
+### Переменные, касающиеся уровня дохода
+
+**income2**: Income Level
+
+*Is your annual household income from all sources: (If respondent refuses at any income level, code “Refused.”)*
+
+| Value | Value Label                                         | Frequency | Percent | Cumulative Frequency |
+| :---: | :-------------------------------------------------- | --------: | ------: | -------------------: |
+|   1   | Less than \$10,000                                  |    25,411 |    5.17 |                 5.17 |
+|   2   | Less than \$15,000 (\$10,000 to less than \$15,000) |    26,759 |    5.44 |                10.61 |
+|   3   | Less than \$20,000 (\$15,000 to less than \$20,000) |    34,885 |    7.09 |                17.70 |
+|   4   | Less than \$25,000 (\$20,000 to less than \$25,000) |    41,738 |    8.49 |                26.19 |
+|   5   | Less than \$35,000 (\$25,000 to less than \$35,000) |    48,863 |    9.94 |                36.13 |
+|   6   | Less than \$50,000 (\$35,000 to less than \$50,000) |    61,506 |   12.51 |                48.63 |
+|   7   | Less than \$75,000 (\$50,000 to less than \$75,000) |    65,238 |   13.27 |                61.90 |
+|   8   | $75,000 or more                                     |   115,982 |   23.58 |                85.48 |
+|  NA   | Don’t know/Not sure                                 |    34,946 |    7.11 |                92.59 |
+|  NA   | Refused                                             |    35,559 |    7.23 |                99.82 |
+|  NA   | [Missing]                                           |       886 |    0.18 |               100.00 |
+| Total | 491,773                                             |    100.00 |         |                      |
+
+Variable type: categorical Missing values: 77, 99, BLANK 
+
+**\_incomg**: Computed Income Categories
+
+*Income categories*
+
+| Value | Value Label                                                      | Frequency | Percent | Cumulative Frequency |
+| :---: | :--------------------------------------------------------------- | --------: | ------: | -------------------: |
+|   1   | Less than $15,000 [*income2* coded 1 or 2]                       |    52,170 |   10.61 |                10.61 |
+|   2   | $15,000 to less than \$25,000 [*income2* coded 3 or 4]           |    76,623 |   15.58 |                26.19 |
+|   3   | $25,000 to less than \$35,000 [*income2* coded 5]                |    48,863 |    9.94 |                36.13 |
+|   4   | $35,000 to less than \$50,000 [*income2* coded 6]                |    61,506 |   12.51 |                48.63 |
+|   5   | $50,000 or more [*income2* coded 7 or 8]                         |   181,220 |   36.85 |                85.48 |
+|  NA   | Don’t know/Not sure/Missing [*income2* coded 77, 99, or missing] |    71,391 |   14.52 |               100.00 |
+| Total | 491,773                                                          |    100.00 |         |                      |
+
+Variable type: categorical Missing values: 9
 
 ```{r}
 
