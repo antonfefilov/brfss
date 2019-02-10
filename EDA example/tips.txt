@@ -20,4 +20,5 @@ Conclusions are often one of the hardest things to write, especially since we ha
 
 Hope this helps, and have fun exploring the data!
 
+https://www.kaggle.com/nextbigwhat/eda-for-categorical-variables-a-beginner-s-way
 

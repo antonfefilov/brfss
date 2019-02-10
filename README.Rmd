@@ -7,6 +7,8 @@ output:
     theme: spacelab
 ---
 
+
+
 ## Setup
 
 ### Load packages
@@ -57,16 +59,11 @@ Is self employed mans who sleeps less than it is necessary, drink more alcohol?
 
 ## Part 3: Exploratory data analysis
 
-NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" 
-button (green button with orange arrow) above. Make sure that your code is visible
-in the project you submit. Delete this note when before you submit your work.
-
-**Research quesion 1:**
-Is the level of education of working people lead to the higher income?
+### Research question 1: Is the level of education of working people lead to the higher income?
 
 At first lets take a look at the BRFSS's Codebook and try to achieve what variables can help us with this investigation. Изучив Кодебук можно выделить следующие переменные:  
 
-### Переменные, касающиеся уровня образования
+#### Переменные, касающиеся уровня образования
 
 **educa**: Education Level
 
@@ -101,7 +98,48 @@ Variable type: categorical Missing values: 9, BLANK
 
 Variable type: categorical Missing values: 9
 
-### Переменные, касающиеся трудовой деятельности 
+Из этих двух переменных я выберу **\_educag**, так как объединенные категории представляют достаточный уровень детализации для исследования, зависимость уровня дохода от того, закончил ли человек детский сад, можно вынести в тему отдельного исследования. 
+Для начала проверим, соответствуют ли данные в data file тому, что представлено в codebook.
+
+```{r eval=FALSE}
+brfss2013 %>%
+  select('_educag') %>%
+  summary()
+```
+
+If we try to run that line, we will get an error message about unknown column. The issue is that R has rules about what variable names are legal (e.g. no spaces, starting with a letter) and when data is loaded, R will often fix variable names to make them legal. Seems this happened to the _educag at the time of loading the data. Let's check if this is true.
+
+```{r}
+grep("_educag", names(brfss2013), value = TRUE)
+```
+
+This is it, so in the future work we should use name `X_educag`.
+
+```{r}
+brfss2013 %>%
+  select('X_educag') %>%
+  str()
+```
+
+```{r}
+brfss2013 %>%
+  select('X_educag') %>%
+  summary()
+```
+
+There is a little difference with the Codebook, but the trend is the same. 
+
+We don't need the NA's values, so get rid of it. Let's filter out rows with NAs in X_educag from database:
+
+```{r}
+brfss2013 %>%
+  filter(!is.na(X_educag)) %>%
+  count()
+```
+
+Let's try to explore employment status variable in the same manner as above.
+
+#### Переменные, касающиеся трудовой деятельности 
 
 **employ1**: Employment Status
 
@@ -123,7 +161,27 @@ Variable type: categorical Missing values: 9
 
 Variable type: categorical Missing values: 9, BLANK
 
-### Переменные, касающиеся уровня дохода
+```{r}
+brfss2013 %>%
+  select('employ1') %>%
+  str()
+```
+
+```{r}
+brfss2013 %>%
+  group_by(employ1) %>%
+  summarise(Frequency=n())
+```
+
+```{r}
+brfss2013 %>%
+  filter(!is.na(employ1)) %>%
+  count()
+```
+
+Из переменных, касающихся уровня дохода, я выберу computed variable **\_incomg* with the lower number of levels and will investigate if it correspond with the codebook reference.
+
+#### Переменные, касающиеся уровня дохода
 
 **income2**: Income Level
 
@@ -161,6 +219,26 @@ Variable type: categorical Missing values: 77, 99, BLANK
 | Total | 491,773                                                          |    100.00 |         |                      |
 
 Variable type: categorical Missing values: 9
+
+```{r}
+brfss2013 %>%
+  select('X_incomg') %>%
+  str()
+```
+
+```{r}
+brfss2013 %>%
+  select('X_incomg') %>%
+  summary()
+```
+
+```{r}
+brfss2013 %>%
+  filter(!is.na(X_incomg)) %>%
+  count()
+```
+
+
 
 ```{r}
 
