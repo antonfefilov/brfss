@@ -22,3 +22,4 @@ Hope this helps, and have fun exploring the data!
 
 https://www.kaggle.com/nextbigwhat/eda-for-categorical-variables-a-beginner-s-way
 
+http://rstudio-pubs-static.s3.amazonaws.com/210574_a88eb309b8cb4a469356ed6b21cf5ef6.html
