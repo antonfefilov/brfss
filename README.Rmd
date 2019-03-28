@@ -13,6 +13,7 @@ output:
 
 ```{r load-packages, message = FALSE}
 library(ggplot2)
+library(ggmosaic)
 library(dplyr)
 ```
 
@@ -33,7 +34,7 @@ Genetics,
 
 **Research quesion 1:**
 
-Is the level of education of working people lead to the higher income?
+Is the level of education of working people related to the higher income?
 
 **Research quesion 2:**
 
@@ -51,14 +52,168 @@ Is self employed mans who sleeps less than it is necessary, drink more alcohol?
 
 ## Part 3: Exploratory data analysis
 
-### Research question 1: Is the level of education of working people lead to the higher income?
+### Research question 1: Is the level of education of working people related to the higher income?
 
+Let's dive into Codebook in order to select variables that can help us answer to this question.
+
+For education level the Codebook offers two variables: **educa** and calculated variable **\_educag**. While **educa** has six levels 
+
+```{r education-levels}
+levels(brfss2013$educa)
+```
+
+**\_educag** has four (in it's internals R replaces **\_educag** with **X_educag**, so we will refer the latter)
+
+```{r x-education-levels}
+levels(brfss2013$X_educag)
+```
+
+This four levels of educations is enough to understand the problem, so we will use **\_educag** in our research.  
+
+Similary, let's check income variable. The Codebook offers two variables: **income2** and calculated variable**\_incomg**. 
+
+```{r income-levels}
+levels(brfss2013$income2)
+```
+
+```{r x-income-levels}
+levels(brfss2013$X_incomg)
+```
+
+**X_incomeg** seems detailed enough so we will use it.
+
+Let's take a closer look at variables. 
+
+First of all, let's extract variables that we are interested into separate dataframe in order to work with less data volume to speedup calculations and do not mutate original dataframe if we will need.
+
+```{r create-education-income-data}
+education.income <- data.frame(income=brfss2013$X_incomg, education=brfss2013$X_educag)
+head(education.income)
+```
+
+Let's check varaibles on the subject of NA (and related garbage) values.
+
+```{r check-education-na}
+education.income %>%
+  group_by(education) %>%
+  summarize(count=n())
+```
+
+```{r}
+education.income %>%
+  group_by(income) %>%
+  summarize(count=n())
+```
+
+As we can see, there is NA values. They are useless in the context of current research, so let's get rid of them.
+
+```{r}
+education.income <- na.omit(education.income)
+```
+
+```{r}
+education.income %>%
+  group_by(education) %>%
+  summarize(count=n())
+```
+
+```{r}
+education.income %>%
+  group_by(income) %>%
+  summarize(count=n())
+```
+
+Now, when we have clean dataset, it's time to take a look at distribution of each variable.
+
+```{r}
+education.income %>%
+  group_by(education) %>%
+  summarize(freq=sprintf("%.2f %%", n()/nrow(education.income) * 100))
+```
+
+```{r}
+ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
+```
+ 
+ From the frequency table and bar plot above we can learn that the fraction of those who has no formal education is really small and is near 8%. The next two groups are nearly equal, the fraction of those who graduated high school and those who attended college or technical school are about 28% each. If we combine those groups we will see that the number of people who graduated high school, but didn't graduate college is dominant and equal 56%. 
+ 
+```{r}
+education.income %>%
+  group_by(income) %>%
+  summarize(freq=sprintf("%.2f %%", n()/nrow(education.income) * 100))
+```
+ 
+```{r}
+ggplot(education.income, aes(x=income)) + geom_bar() + coord_flip()
+```
+
+```{r}
+table.education.margin <- table(education.income$education, education.income$income) %>% prop.table(1)
+colnames(table.education.margin) <- c('< $15K', '$15K-$25K', '$25K-$35K', '$35K-$50K', '$50K >')
+table.education.margin
+```
+
+```{r}
+table.income.margin <- table(education.income$education, education.income$income) %>% prop.table(2)
+colnames(table.income.margin) <- c('< $15K', '$15K-$25K', '$25K-$35K', '$35K-$50K', '$50K >')
+table.income.margin
+```
+
+```{r}
+ggplot(education.income, aes(x=education, fill=income)) + geom_bar() + scale_x_discrete(labels = abbreviate) 
+```
+
+```{r}
+ggplot(education.income, aes(x=education, fill=income)) + geom_bar(position='fill') + scale_x_discrete(labels = abbreviate) 
+```
+
+```{r}
+ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r include=FALSE}
+education.income$education <- recode(education.income$education, "Attended college or technical school" = "Graduated high school")
+```
+
+```{r}
+education.income %>%
+  group_by(education) %>%
+  summarize(freq=sprintf("%.2f %%", n()/nrow(education.income) * 100))
+```
+
+```{r}
+ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
+```
+
+```{r include=FALSE}
+education.income$income <- recode(education.income$income, "$15,000 to less than $25,000" = "$15,000 to less than $50,000",
+                                                            "$25,000 to less than $35,000" = "$15,000 to less than $50,000",
+                                                            "$35,000 to less than $50,000" = "$15,000 to less than $50,000")
+```
+
+```{r}
+education.income %>%
+  group_by(income) %>%
+  summarize(freq=sprintf("%.2f %%", n()/nrow(education.income) * 100))
+```
+
+```{r}
+ggplot(education.income, aes(x=income)) + geom_bar() + coord_flip()
+```
+
+```{r}
+ggplot(education.income, aes(x=education, fill=income)) + geom_bar(position='fill') + scale_x_discrete(labels = abbreviate) 
+```
+
+```{r}
+table.education.margin <- table(education.income$education, education.income$income) %>% prop.table(1)
+colnames(table.education.margin) <- c('< $15K', '$15K-$50K', '$50K >')
+table.education.margin
+```
 
 **Research quesion 2:**
 
-```{r}
 
-```
 
 **Research quesion 3:**
 
