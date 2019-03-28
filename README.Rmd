@@ -5,6 +5,7 @@ output:
     fig_height: 4
     highlight: pygments
     theme: spacelab
+    toc: yes
 ---
 
 ## Setup
@@ -171,7 +172,7 @@ ggplot(education.income, aes(x=education, fill=income)) + geom_bar(position='fil
 ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-```{r include=FALSE}
+```{r echo=TRUE}
 education.income$education <- recode(education.income$education, "Attended college or technical school" = "Graduated high school")
 ```
 
@@ -185,7 +186,7 @@ education.income %>%
 ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
 ```
 
-```{r include=FALSE}
+```{r echo=TRUE}
 education.income$income <- recode(education.income$income, "$15,000 to less than $25,000" = "$15,000 to less than $50,000",
                                                             "$25,000 to less than $35,000" = "$15,000 to less than $50,000",
                                                             "$35,000 to less than $50,000" = "$15,000 to less than $50,000")
@@ -210,6 +211,11 @@ table.education.margin <- table(education.income$education, education.income$inc
 colnames(table.education.margin) <- c('< $15K', '$15K-$50K', '$50K >')
 table.education.margin
 ```
+
+```{r}
+ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
 
 **Research quesion 2:**
 
