@@ -16,6 +16,7 @@ output:
 library(ggplot2)
 library(ggmosaic)
 library(dplyr)
+library(RColorBrewer)
 ```
 
 ### Load data
@@ -35,11 +36,15 @@ Genetics,
 
 **Research quesion 1:**
 
-Is the level of education of working people related to the higher income?
+Is the level of education of working people related to higher income?
 
 **Research quesion 2:**
 
-Is the level of education of working native americans/alaskian people's lead to the higher income?
+Does somehow people's weight related to vegetables consumption? 
+
+**Research quesion 2:**
+
+Is the level of education of working native americans/alaskian people's lead to higher income?
 
 **Research quesion 3:**
 
@@ -53,9 +58,9 @@ Is self employed mans who sleeps less than it is necessary, drink more alcohol?
 
 ## Part 3: Exploratory data analysis
 
-### Research question 1: Is the level of education of working people related to the higher income?
+### Research question 1: Is the level of education of working people related to higher income?
 
-Let's dive into Codebook in order to select variables that can help us answer to this question.
+Let's dive into Codebook in order to select variables that can help us answer this question.
 
 For education level the Codebook offers two variables: **educa** and calculated variable **\_educag**. While **educa** has six levels 
 
@@ -216,6 +221,258 @@ table.education.margin
 ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+### Research question 2: Does somehow people's weight related to vegetables consumption?
+
+In order to answer this question let's look at the variables that the codebook can provide. As for weight, there is a reference to **weight2** reported weight in pounds (without shoes). But this variable has mixed pounds/kilograms values (kilograms are used for values bigger than 9000), so we should preprocess it to achieve monotony. For our happiness dataset compilers already did this job and provide us with **wtkg3** - computed weight in kilograms. Let's explore it. Note, as codebook states, there is 2 implied decimal places, so the value 9754 kg we should perceive as 97,54 kg.
+
+First of all, let's extract variables that we are interested into separate dataframe in order to work with less data volume to speedup calculations and do not mutate original dataframe if we will need. Also let's remove any NA from new data frame.
+
+```{r create-weight-vegetables-data}
+weight.vegetables <- data.frame(weight=brfss2013$wtkg3, vegetables=brfss2013$X_vegesum) %>% na.omit()
+head(weight.vegetables)
+```
+
+```{r}
+anyNA(weight.vegetables)
+```
+
+At first, let's explore 'weight' variable.
+
+```{r}
+weight <- weight.vegetables$weight
+```
+
+```{r}
+str(weight)
+```
+
+It's a descrete numeric variable. 
+
+```{r}
+range(weight)
+```
+
+With range of values from 1 (person with weight of 0,01 kilogramm???) to 290,3 kilograms.
+
+Let's say a couple of words about central tendency.
+
+```{r}
+mean(weight)
+```
+
+Mean roughly equal to 80 kg.
+
+```{r}
+median(weight)
+```
+
+And median roughly equal to 77 kg.
+
+As the mean greater than median, we can suggest it's the right skewed distribution.
+
+As for dispersion:
+
+```{r}
+paste(
+  'Variance: ', round(var(weight)), '\n',
+  'Standard deviation: ', round(sd(weight)), '\n',
+  'IQR: ', round(IQR(weight)),
+  sep = ''
+) %>% cat
+```
+
+Very dispersed dataset with dense IQR.
+
+Let's take a look at how the distribution is looks like.
+
+```{r}
+ggplot(data.frame(weight), aes(x=weight)) + geom_histogram()
+```
+
+```{r}
+ggplot(data.frame(weight), aes(y=weight)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() + coord_flip()
+```
+
+By looking at graphs we can confirm the suggestion that the distribution skewed to the right. But also we can note that while the IQR is condensed, there is a lot of outliers. What to do with them? By looking at box plot we can suggest there is two types of outliers - weights less than ~40 kg and greater than ~125 kg. By the intuition weights of, for example, 200 kg, or 30 kg, is unusual weights and we can get rid of it if there is just a few records of such kinds of weights. First of all, let's find quartiles Q1 and Q3 to define borders of IQR.
+
+```{r}
+quantile(weight)
+```
+
+```{r}
+q1 <- 6577
+q3 <- 9072
+iqr <- IQR(weight)
+```
+
+A commonly used rule says that low outliers are below Q1-1.5\*IQR and high outliers are above Q3+1.5\*IQR, so lets find those borders.
+
+```{r}
+outliers.border.low <- q1 - 1.5 * iqr
+outliers.border.high <- q3 + 1.5 * iqr
+```
+
+And check how many outliers we have.
+
+```{r}
+length(weight[weight < outliers.border.low | weight > outliers.border.high])
+```
+
+```{r}
+10471/length(weight)
+```
+
+Not so much, just about 2%. Let's go futher without them and remove outliers from variable 'weight' and from dataset 'weight.vegetables'.
+
+```{r}
+weight <- weight[weight >= outliers.border.low & weight <= outliers.border.high]
+```
+
+```{r}
+weight.vegetables <- subset(weight.vegetables, weight >= outliers.border.low & weight <= outliers.border.high)
+```
+
+Let's check how distribution whithout outliers is looks like.
+
+```{r}
+ggplot(data.frame(weight), aes(x=weight)) + geom_histogram(binwidth = 1000)
+```
+
+Unimodal, slightly skewed to the right.
+
+```{r}
+ggplot(data.frame(weight), aes(y=weight)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() + coord_flip()
+```
+
+At second, let's explore 'vegetables' variable.
+
+```{r}
+vegetables <- weight.vegetables$vegetables
+```
+
+```{r}
+str(vegetables)
+```
+
+It's a descrete numeric variable. 
+
+```{r}
+range(vegetables)
+```
+
+With range of values from 0 (no vegetables consumption) to 19827 (???).
+
+Let's say a couple of words about central tendency.
+
+```{r}
+mean(vegetables)
+```
+
+```{r}
+median(vegetables)
+```
+
+As the mean greater than median, we can suggest it's the right skewed distribution.
+
+As for dispersion:
+
+```{r}
+paste(
+  'Variance: ', round(var(vegetables)), '\n',
+  'Standard deviation: ', round(sd(vegetables)), '\n',
+  'IQR: ', round(IQR(vegetables)),
+  sep = ''
+) %>% cat
+```
+
+Very dispersed dataset with dense IQR.
+
+Let's take a look at how the distribution is looks like.
+
+```{r}
+ggplot(data.frame(vegetables), aes(x=vegetables)) + geom_histogram()
+```
+
+```{r}
+ggplot(data.frame(vegetables), aes(y=vegetables)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() + coord_flip()
+```
+
+By looking at graphs we can confirm the suggestion that the distribution skewed to the right. But also we can note that while the IQR is condensed, there is a lot of outliers. What to do with them? Let's explore if we can get rid of them. First of all, let's find quartiles Q1 and Q3 to define borders of IQR.
+
+```{r}
+quantile(vegetables)
+```
+
+```{r}
+q1 <- 104
+q3 <- 243
+iqr <- IQR(vegetables)
+```
+
+A commonly used rule says that low outliers are below Q1-1.5\*IQR and high outliers are above Q3+1.5\*IQR, so lets find those borders.
+
+```{r}
+outliers.border.low <- q1 - 1.5 * iqr
+outliers.border.high <- q3 + 1.5 * iqr
+```
+
+And check how many outliers we have.
+
+```{r}
+length(vegetables[vegetables < outliers.border.low | vegetables > outliers.border.high])
+```
+
+```{r}
+10471/length(vegetables)
+```
+
+Not so much, just about 2%. Let's go futher without them and remove outliers from variable 'vegetablest' and from dataset 'weight.vegetables'.
+
+```{r}
+vegetables <- vegetables[vegetables >= outliers.border.low & vegetables <= outliers.border.high]
+```
+
+```{r}
+weight.vegetables <- subset(weight.vegetables, vegetables >= outliers.border.low & vegetables <= outliers.border.high)
+```
+
+Let's check how distribution whithout outliers is looks like.
+
+```{r}
+ggplot(data.frame(vegetables), aes(x=vegetables)) + geom_histogram()
+```
+
+Unimodal, slightly skewed to the right.
+
+```{r}
+ggplot(data.frame(vegetables), aes(y=vegetables)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() + coord_flip()
+```
+
+Now, let's try to answer to the research question, is there any relation between weight and vegetables consumption? 
+
+```{r}
+ggplot(weight.vegetables, aes(x=vegetables, y=weight)) + geom_point()
+```
+
+Wow. The scatterplot is so dense, so it's absolutely impossible to find any kiind of relation here. We can make a things a bit clearer by reducing sample size and   
+
+```{r}
+ggplot(sample_n(weight.vegetables, 100000), aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5)
+```
+
+While there is recognized some 'cloud' with high density, still nothing. Let's add regression line to the plot.
+
+```{r}
+ggplot(weight.vegetables, aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5) + geom_smooth(method='lm', se = FALSE) 
+```
+
+Now we can see that there is small negative relation between weight and vegetables consumption. So there is a small chance the lighter people are, the more they eat vegetables. But for confidence, let's check the coorelation coefficient between weight and vegetables.  
+
+```{r}
+cor(weight.vegetables)
+```
+
+This table confirms the suggestion about small negative relation. 
 
 **Research quesion 2:**
 
