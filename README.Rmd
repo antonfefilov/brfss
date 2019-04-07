@@ -16,7 +16,6 @@ output:
 library(ggplot2)
 library(ggmosaic)
 library(dplyr)
-library(RColorBrewer)
 ```
 
 ### Load data
@@ -42,21 +41,15 @@ Is the level of education of working people related to higher income?
 
 Does somehow people's weight related to vegetables consumption? 
 
-**Research quesion 2:**
-
-Is the level of education of working native americans/alaskian people's lead to higher income?
-
 **Research quesion 3:**
 
-Is childfree educated womens become to drink more alcohol with ages?
-
-**Research quesion 4:**
-
-Is self employed mans who sleeps less than it is necessary, drink more alcohol?
+Is self employed mans who sleeps less than it is necessary, drink more alcohol than employed who sleeps enough?
 
 * * *
 
 ## Part 3: Exploratory data analysis
+
+
 
 ### Research question 1: Is the level of education of working people related to higher income?
 
@@ -454,10 +447,10 @@ Now, let's try to answer to the research question, is there any relation between
 ggplot(weight.vegetables, aes(x=vegetables, y=weight)) + geom_point()
 ```
 
-Wow. The scatterplot is so dense, so it's absolutely impossible to find any kiind of relation here. We can make a things a bit clearer by reducing sample size and   
+Wow. The scatterplot is so dense, so it's absolutely impossible to find any kind of relation here. We can make things a bit clearer by reducing sample size and   
 
 ```{r}
-ggplot(sample_n(weight.vegetables, 100000), aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5)
+ggplot(sample_n(weight.vegetables, 10000), aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5)
 ```
 
 While there is recognized some 'cloud' with high density, still nothing. Let's add regression line to the plot.
@@ -474,12 +467,126 @@ cor(weight.vegetables)
 
 This table confirms the suggestion about small negative relation. 
 
-**Research quesion 2:**
+**Research quesion 3: Is self employed mans who sleeps less than it is necessary, drink more alcohol than employed mans with normal sleep?**
 
+The main idea behind this investigation is the next: self employed who sleeps less are working hard and so under pressure and they need to releive stress, while employed with normal sleep don't.    
 
+Let's find in codebook variables we can use to make this research. We will look for something about sex, employment status, sleep hours and alcohol consumption. 
 
-**Research quesion 3:**
+With the sex all is simple, it's 'sex' variable.
 
 ```{r}
-
+str(brfss2013$sex)
 ```
+
+```{r}
+brfss2013 %>%
+  group_by(sex) %>%
+  summarize(count=n())
+```
+
+As for employment status, it's 'employ1' variable. Take a look at it quickly. 
+
+```{r}
+str(brfss2013$employ1)
+```
+
+```{r}
+levels(brfss2013$employ1)
+```
+
+```{r}
+brfss2013 %>%
+  group_by(employ1) %>%
+  summarize(count=n())
+```
+
+It's have enough data to split employed for wages and self employed people, so we can use it in research.
+
+For filtering peoples by sleep adequacy, we should use 'sleptim1' variable, because it's the only one about sleep hours. In questionary, the question about sleep is looks the next: 'On average, how many hours of sleep do you get in a 24-hour period?', so we should decide ourselves how to split adequate/inadequate hours, but now let's just take a look at what the variable is.
+
+```{r}
+str(brfss2013$sleptim1)
+```
+
+```{r}
+brfss2013 %>%
+  group_by(sleptim1) %>%
+  summarize(count=n())
+```
+
+Seems good enough to use in research. Go further.
+
+As for alcohol consumption, the variable 'alcday5', Days In Past 30 Had Alcoholic Beverage, looks the most reasonable one, because other alcohol related variables have too much missing values. 
+
+```{r}
+str(brfss2013$alcday5)
+```
+
+```{r}
+brfss2013 %>%
+  group_by(alcday5) %>%
+  summarize(count=n())
+```
+
+[101 - 199]	Days per week, [201 - 299]	Days in the past 30 days - so we will need to transform them to one view. 
+
+Now, when all variables has been chosen, we will extract them into new data frame and will get rid of rows with any NA at the same time.
+
+```{r}
+employment.sleep.alcohol <- data.frame(
+  sex=brfss2013$sex,
+  employment=brfss2013$employ1,
+  sleep=brfss2013$sleptim1,
+  alcohol=brfss2013$alcday5
+) %>% na.omit()
+
+head(employment.sleep.alcohol)  
+```
+
+```{r}
+anyNA(employment.sleep.alcohol)
+```
+
+Filter new dataset and drop sex column. 
+
+```{r}
+employment.sleep.alcohol <- employment.sleep.alcohol %>% filter(sex == 'Male' & employment %in% c('Self-employed', 'Employed for wages')) %>% select(-c(sex))
+head(employment.sleep.alcohol) 
+```
+
+That's a moot point, what sleep we can consider as inadequate, so, based on the opionin the adult person should sleeps 7-9 hours per day, let's take 6 hours as an upper bound of the inadequate sleep.
+
+```{r}
+employment.sleep.alcohol <- employment.sleep.alcohol %>% mutate(sleep = if_else(sleep > 6, 'Adequate', 'Inadequate'))
+head(employment.sleep.alcohol)
+```
+
+Calculate variable we are interested in and drop not needed.
+
+```{r}
+employment.sleep.alcohol <- employment.sleep.alcohol %>%
+  filter((employment == 'Employed for wages' & sleep == 'Adequate') | (employment == 'Self-employed' & sleep == 'Inadequate'))
+head(employment.sleep.alcohol)
+```
+
+Make 'alcohol' variable monotonous, transform it to drinking days per month, i.e, if value is 0, return it, if value is greater than or equal to 200, substract 200, if less than or equal to 107, subsctract 100, divide by 7 and multiply to 30.
+
+```{r}
+employment.sleep.alcohol <- employment.sleep.alcohol %>%
+  mutate(alcohol = case_when(
+    alcohol == 0 ~ 0,
+    (alcohol >= 100 & alcohol <= 107) ~ round((alcohol - 100)/7 * 30),
+    alcohol >= 200 ~ alcohol - 200
+  )
+)
+head(employment.sleep.alcohol)
+```
+
+And now it's time to give an answer to the main question.
+
+```{r}
+ggplot(data.frame(employment.sleep.alcohol), aes(x=employment, y=alcohol)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() 
+```
+
+Wow, not the expected result. It seems there is no defference in alcohol consumption between self employed how sleeps little, and employed for wages who sleeps enough.
