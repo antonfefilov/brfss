@@ -28,7 +28,9 @@ load("brfss2013.RData")
 
 ## Part 1: Data
 
-Genetics,  
+In this work we will deal with the Behavioral Risk Factor Surveillance System (BRFSS) dataset, produced in 2013. It was collected from the non-institutionalized adult population (18 years of age and older) residing in the US and participating US territories, namely, all 50 states, the District of Columbia, Puerto Rico, Guam, American Samoa, Federated States of Micronesia, Palau. The sample was builded by surveing the random landline or cellular telephone, it's size is about 490K observations and research results can be generalized to the population described above. As the BRFSS is the result of observational study, we can not make causal conclusions. Although sample was builded based on random selection, there might be a bias related to the method of collecting data - telephone calls. People working at night, travelers, households without telephone, people who do not speak English or Spanish (the languages used for surveys) - that's the incomplete list of thouse who may not be represented in BRFSS dataset. 
+
+Although we can not establish causal connections between variables of interest, we can research association between them, so let's try to do it by answering on the next three questions.
 * * *
 
 ## Part 2: Research questions
@@ -54,6 +56,24 @@ Is self employed mans who sleeps less than it is necessary, drink more alcohol t
 ### Research question 1: Is the level of education of working people related to higher income?
 
 Let's dive into Codebook in order to select variables that can help us answer this question.
+
+As for employment status, it's 'employ1' variable. Take a look at it quickly. 
+
+```{r}
+str(brfss2013$employ1)
+```
+
+```{r}
+levels(brfss2013$employ1)
+```
+
+```{r}
+brfss2013 %>%
+  group_by(employ1) %>%
+  summarize(count=n())
+```
+
+It's have enough data to split employed for wages and self employed people, so we can use it in research.
 
 For education level the Codebook offers two variables: **educa** and calculated variable **\_educag**. While **educa** has six levels 
 
@@ -83,14 +103,17 @@ levels(brfss2013$X_incomg)
 
 Let's take a closer look at variables. 
 
-First of all, let's extract variables that we are interested into separate dataframe in order to work with less data volume to speedup calculations and do not mutate original dataframe if we will need.
+First of all, let's extract variables that we are interested into separate dataframe in order to work with less data volume to speedup calculations and do not mutate original dataframe if we will need. Also filter records to select data only for working peoples.
 
 ```{r create-education-income-data}
-education.income <- data.frame(income=brfss2013$X_incomg, education=brfss2013$X_educag)
+education.income <- brfss2013 %>%
+  filter(brfss2013$employ1 %in% c('Employed for wages', 'Self-employed')) %>%
+  select(income=X_incomg, education=X_educag)
+
 head(education.income)
 ```
 
-Let's check varaibles on the subject of NA (and related garbage) values.
+Let's check variables on the subject of NA (and related garbage) values.
 
 ```{r check-education-na}
 education.income %>%
@@ -108,9 +131,7 @@ As we can see, there is NA values. They are useless in the context of current re
 
 ```{r}
 education.income <- na.omit(education.income)
-```
 
-```{r}
 education.income %>%
   group_by(education) %>%
   summarize(count=n())
@@ -134,7 +155,7 @@ education.income %>%
 ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
 ```
  
- From the frequency table and bar plot above we can learn that the fraction of those who has no formal education is really small and is near 8%. The next two groups are nearly equal, the fraction of those who graduated high school and those who attended college or technical school are about 28% each. If we combine those groups we will see that the number of people who graduated high school, but didn't graduate college is dominant and equal 56%. 
+ From the frequency table and bar plot above we can learn that the fraction of those who has no formal education is really small and is near 6%. The next two groups are nearly equal, the fraction of those who graduated high school and those who attended college or technical school are about 24% and 28% respectively. If we combine those groups we will see that the number of people who graduated high school, but didn't graduate college is dominant and equal 52%. 
  
 ```{r}
 education.income %>%
@@ -589,4 +610,4 @@ And now it's time to give an answer to the main question.
 ggplot(data.frame(employment.sleep.alcohol), aes(x=employment, y=alcohol)) + stat_boxplot(geom = 'errorbar', width = 0.1) + geom_boxplot() 
 ```
 
-Wow, not the expected result. It seems there is no defference in alcohol consumption between self employed how sleeps little, and employed for wages who sleeps enough.
+Wow, not the expected result. It seems there is no defference in alcohol consumption between self employed who sleeps little, and employed for wages who sleeps enough.

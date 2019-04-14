@@ -23,3 +23,13 @@ Hope this helps, and have fun exploring the data!
 https://www.kaggle.com/nextbigwhat/eda-for-categorical-variables-a-beginner-s-way
 
 http://rstudio-pubs-static.s3.amazonaws.com/210574_a88eb309b8cb4a469356ed6b21cf5ef6.html
+
+Review criterialess 
+Do you understand the research question?
+Is it clear how data can be used to answer this research question as its phrased?
+Scope of inference - generalizability: Is the data collection explained clearly? Did the writer correctly identify the population of interest? Did the writer correctly decide whether the findings from this analysis can be generalized to that population, or, if not, a subsection of that population? Is their explanation satisfactory to make this decision? Are potential sources of bias discussed, and if so, is the discussion satisfactory?
+Scope of inference - causality: Did the writer identify correctly whether these data can be used to establish causal links between the variables of interest. Is the explanation satisfactory?
+Are the research questions well defined and is it clear why they are of interest to the author / audience? Are appropriate numbers of variables used in each research question?
+Are appropriate summary statistics calculated, and are they explained/interpreted in context of the data and the research question?
+Are appropriate visualizations included, and are they explained/interpreted in context of the data and the research question?
+Did the writer address what the findings from the exploratory analysis suggest about the research question?
