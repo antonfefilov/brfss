@@ -28,7 +28,7 @@ load("brfss2013.RData")
 
 ## Part 1: Data
 
-In this work we will deal with the Behavioral Risk Factor Surveillance System (BRFSS) dataset, produced in 2013. It was collected from the non-institutionalized adult population (18 years of age and older) residing in the US and participating US territories, namely, all 50 states, the District of Columbia, Puerto Rico, Guam, American Samoa, Federated States of Micronesia, Palau. The sample was builded by surveing the random landline or cellular telephone, it's size is about 490K observations and research results can be generalized to the population described above. As the BRFSS is the result of observational study, we can not make causal conclusions. Although sample was builded based on random selection, there might be a bias related to the method of collecting data - telephone calls. People working at night, travelers, households without telephone, people who do not speak English or Spanish (the languages used for surveys) - that's the incomplete list of thouse who may not be represented in BRFSS dataset. 
+In this work we will deal with the Behavioral Risk Factor Surveillance System (BRFSS) dataset, produced in 2013. It was collected from the non-institutionalized adult population (18 years of age and older) residing in the US and participating US territories, namely, all 50 states, the District of Columbia, Puerto Rico, Guam, American Samoa, Federated States of Micronesia, Palau. The sample was built by surveing the random landline or cellular telephone, it's size is about 490K observations and research results can be generalized to the population described above (due to random nature of collecting data). As the BRFSS is the result of observational study, we can not make causal conclusions. Although sample was built based on random selection, there might be a bias related to the method of collecting data - telephone calls. People working at night, travelers, households without telephone, people who do not speak English or Spanish (the languages used for surveys) - that's the incomplete list of thouse who may not be represented in BRFSS dataset. 
 
 Although we can not establish causal connections between variables of interest, we can research association between them, so let's try to do it by answering on the next three questions.
 * * *
@@ -51,8 +51,6 @@ Is self employed mans who sleeps less than it is necessary, drink more alcohol t
 
 ## Part 3: Exploratory data analysis
 
-
-
 ### Research question 1: Is the level of education of working people related to higher income?
 
 Let's dive into Codebook in order to select variables that can help us answer this question.
@@ -73,7 +71,7 @@ brfss2013 %>%
   summarize(count=n())
 ```
 
-It's have enough data to split employed for wages and self employed people, so we can use it in research.
+It has enough data to get subset of working people, so we can use it in research.
 
 For education level the Codebook offers two variables: **educa** and calculated variable **\_educag**. While **educa** has six levels 
 
@@ -155,7 +153,7 @@ education.income %>%
 ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
 ```
  
- From the frequency table and bar plot above we can learn that the fraction of those who has no formal education is really small and is near 6%. The next two groups are nearly equal, the fraction of those who graduated high school and those who attended college or technical school are about 24% and 28% respectively. If we combine those groups we will see that the number of people who graduated high school, but didn't graduate college is dominant and equal 52%. 
+ From the frequency table and bar plot above we can learn that the fraction of those who has no formal education is really small and is near 5%. The next two groups are nearly equal, the fraction of those who graduated high school and those who attended college or technical school are about 24% and 27% respectively. If we combine those groups we will see that the number of people who graduated high school, but didn't graduate college is dominant and equal 52%. 
  
 ```{r}
 education.income %>%
@@ -167,17 +165,23 @@ education.income %>%
 ggplot(education.income, aes(x=income)) + geom_bar() + coord_flip()
 ```
 
+We can see, that the number of working Americans who earn realy well is big and is about 58% of all working peoples. On other side the ratio of working people who earn less than 15K/year is small and is about 5%.    
+
 ```{r}
 table.education.margin <- table(education.income$education, education.income$income) %>% prop.table(1)
 colnames(table.education.margin) <- c('< $15K', '$15K-$25K', '$25K-$35K', '$35K-$50K', '$50K >')
 table.education.margin
 ```
 
+Above the contingency table with row proportions. Because the income rates vary between the levels of graduation, we can conclude that the *income* and *education* variables are associated.   
+
 ```{r}
 table.income.margin <- table(education.income$education, education.income$income) %>% prop.table(2)
 colnames(table.income.margin) <- c('< $15K', '$15K-$25K', '$25K-$35K', '$35K-$50K', '$50K >')
 table.income.margin
 ```
+
+Above the contingency table with column proportions. Because the education rates vary between the levels of income, we can confirm that the *income* and *education* variables are associated.  
 
 ```{r}
 ggplot(education.income, aes(x=education, fill=income)) + geom_bar() + scale_x_discrete(labels = abbreviate) 
@@ -191,6 +195,8 @@ ggplot(education.income, aes(x=education, fill=income)) + geom_bar(position='fil
 ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+By looking at the three diagrams above we can see that there is a strong tendency for income level to grow when education level grow. But the number of income and education levels seems too big to intuitively understand the results. As a suggestion, it will be more simpler, if we will make 3 levels of income (poor, average, good) and 3 for education (didn't graduate high school, graduated high school and graduated from college or technical school). The results of such transformations below.   
+
 ```{r echo=TRUE}
 education.income$education <- recode(education.income$education, "Attended college or technical school" = "Graduated high school")
 ```
@@ -200,6 +206,8 @@ education.income %>%
   group_by(education) %>%
   summarize(freq=sprintf("%.2f %%", n()/nrow(education.income) * 100))
 ```
+
+More than 50% of working people are graduated highschool and 44% graduated from college. Awesome! Only 5% have no formal education. 
 
 ```{r}
 ggplot(education.income, aes(x=education)) + geom_bar() + coord_flip()
@@ -234,6 +242,8 @@ table.education.margin
 ```{r}
 ggplot(education.income) + geom_mosaic(aes(x = product(education), fill=income)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+
+The final thoughts on the question "Is the level of education of working people related to higher income?": yes, it is. But by looking at the diagrams above we can make a couple of other conclusions. The ratio of those who earn less than 15k is small, around 5%. Even among working people without formal education there is a 15% ratio of those who earn greater than 50K. And even among people who graduated from college 1,4% earn less than 15k. While there is such unmotivated results, the overall trending is - learn, and there will be a good chance for you to earn enough money. 
 
 ### Research question 2: Does somehow people's weight related to vegetables consumption?
 
@@ -468,7 +478,7 @@ Now, let's try to answer to the research question, is there any relation between
 ggplot(weight.vegetables, aes(x=vegetables, y=weight)) + geom_point()
 ```
 
-Wow. The scatterplot is so dense, so it's absolutely impossible to find any kind of relation here. We can make things a bit clearer by reducing sample size and   
+Wow. The scatterplot is so dense, so it's absolutely impossible to find any kind of relation here. We can make things a bit clearer by reducing sample size and make point more transparent to reflect the density.  
 
 ```{r}
 ggplot(sample_n(weight.vegetables, 10000), aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5)
@@ -480,7 +490,7 @@ While there is recognized some 'cloud' with high density, still nothing. Let's a
 ggplot(weight.vegetables, aes(x=vegetables, y=weight)) + geom_point(shape=1, alpha = 0.5) + geom_smooth(method='lm', se = FALSE) 
 ```
 
-Now we can see that there is small negative relation between weight and vegetables consumption. So there is a small chance the lighter people are, the more they eat vegetables. But for confidence, let's check the coorelation coefficient between weight and vegetables.  
+Now we can see that there is small negative relation between weight and vegetables consumption. So there is a small chance the lighter people are, the more they eat vegetables. But for confidence, let's check the correlation coefficient between weight and vegetables.  
 
 ```{r}
 cor(weight.vegetables)
